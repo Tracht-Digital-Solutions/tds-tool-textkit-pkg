@@ -44,6 +44,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tracht-Digital-Solutions/tds-tool-textkit.git"
+    "url": "git+https://github.com/Tracht-Digital-Solutions/tds-tool-textkit-pkg.git"
   }
 }

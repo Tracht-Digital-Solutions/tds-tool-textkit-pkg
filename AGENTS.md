@@ -1,7 +1,7 @@
-# AGENTS.md — tds-tool-textkit
+# AGENTS.md — tds-tool-textkit-pkg
 
 A **tool package** for the TDS tools platform (password generator + UTM builder).
-Read `tds-tools-contract`'s AGENTS.md for the platform model.
+Read `tds-tools-contract-pkg`'s AGENTS.md for the platform model.
 
 ## Shape
 
