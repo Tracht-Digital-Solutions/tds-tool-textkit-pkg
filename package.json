@@ -1,6 +1,6 @@
 {
   "name": "@tracht-digital-solutions/tds-tool-textkit",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Text & link utilities for the TDS tools platform: secure password generator + UTM campaign link builder. Fully client-side.",
   "license": "UNLICENSED",
   "private": false,
