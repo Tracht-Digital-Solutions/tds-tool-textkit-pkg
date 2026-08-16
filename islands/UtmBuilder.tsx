@@ -63,7 +63,9 @@ export default function UtmBuilder() {
     }
   };
 
-  const field = "w-full rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-paper)] px-3 py-2";
+  // Geometry/border/padding come from the shared primitive — the pack ships no
+  // CSS and the radius must follow whatever surface composes it.
+  const field = "field-boxed w-full";
 
   return (
     <div className="utm-tool space-y-5">
@@ -97,10 +99,10 @@ export default function UtmBuilder() {
             <p className="text-xs opacity-70">Empfohlen: {missing.join(", ")} ausfüllen.</p>
           )}
           <div className="flex items-stretch gap-2">
-            <output className="flex-1 select-all rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-card)] px-4 py-3 font-mono text-sm break-all">
+            <output className="tds-card flex-1 select-all px-4 py-3 font-mono text-sm break-all">
               {url || "—"}
             </output>
-            <button type="button" onClick={copy} disabled={!url} className="rounded-lg bg-[color:var(--color-primary)] px-4 text-sm text-[color:var(--color-paper)] disabled:opacity-50">
+            <button type="button" className="btn btn-primary" onClick={copy} disabled={!url}>
               {copied ? "Kopiert ✓" : "Kopieren"}
             </button>
           </div>

@@ -85,18 +85,16 @@ export default function PasswordGenerator() {
     }
   };
 
-  const check = "w-full rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-paper)] px-3 py-2";
-
   return (
     <div className="password-tool space-y-5">
       <div className="flex items-stretch gap-2">
-        <output className="flex-1 select-all rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-card)] px-4 py-3 font-mono text-lg break-all">
+        <output className="tds-card flex-1 select-all px-4 py-3 font-mono text-lg break-all">
           {password || "—"}
         </output>
-        <button type="button" onClick={copy} disabled={!password} className="rounded-lg border border-[color:var(--color-border)] px-4 text-sm disabled:opacity-50">
+        <button type="button" className="btn btn-ghost" onClick={copy} disabled={!password}>
           {copied ? "Kopiert ✓" : "Kopieren"}
         </button>
-        <button type="button" onClick={generate} className="rounded-lg bg-[color:var(--color-primary)] px-4 text-sm text-[color:var(--color-paper)]" aria-label="Neu erzeugen">
+        <button type="button" className="btn btn-primary" onClick={generate} aria-label="Neu erzeugen">
           ↻
         </button>
       </div>
@@ -107,6 +105,13 @@ export default function PasswordGenerator() {
           <span style={{ color: s.tone }}>{pool.length > 0 ? `${s.label} · ~${bits} bit` : "Keine Zeichen gewählt"}</span>
         </div>
         <input type="range" min={6} max={64} value={length} onChange={(e) => setLength(Number(e.target.value))} className="w-full" />
+        {/* The one radius this pack still writes by hand. A 6px strength meter
+            is a capsule on every surface (the library rounds its own capsules
+            to `--tds-radius-pill` too), and it is a readout, not a control —
+            so it carries no surface geometry decision. It cannot use
+            `rounded-[var(--tds-radius-bar)]` either: Tailwind does not
+            generate arbitrary values out of a package inside node_modules,
+            so that would ship as no rule at all. */}
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color:var(--color-border)]">
           <div className="h-full rounded-full transition-all" style={{ width: `${s.pct}%`, background: s.tone }} />
         </div>
