@@ -208,3 +208,49 @@ describe("copy to clipboard", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Kopieren" })).toBeDefined());
   });
 });
+
+/**
+ * The English branch.
+ *
+ * The German assertions above all render `<UtmBuilder />` with no props, so
+ * they are also the regression test for the DEFAULT — an island that quietly
+ * started rendering English would fail every one of them. What is left to
+ * pin here is that the branch exists at all, and the two things that are
+ * easy to get wrong when a UI is translated: the parameter KEYS must stay
+ * English-language-independent (they are what an analytics tool reads), and
+ * the placeholder values must not leak German into an English page.
+ */
+describe("in English", () => {
+  it("labels the parameters in English but keeps the utm_ keys", () => {
+    render(<UtmBuilder lang="en" />);
+    expect(screen.getByLabelText(/Source \(utm_source\)/)).toBeDefined();
+    expect(screen.getByLabelText(/Campaign \(utm_campaign\)/)).toBeDefined();
+    expect(screen.queryByLabelText(/Quelle/)).toBeNull();
+  });
+
+  it("translates the copy button", () => {
+    render(<UtmBuilder lang="en" />);
+    expect(screen.getByRole("button", { name: "Copy" })).toBeDefined();
+  });
+
+  it("reports an invalid URL in English", async () => {
+    const u = user();
+    render(<UtmBuilder lang="en" />);
+    const base = screen.getByLabelText(/Target URL/);
+    await u.clear(base);
+    await u.type(base, "keine-url");
+    expect(await screen.findByText(/valid URL/)).toBeDefined();
+  });
+
+  it("still builds the same URL as the German island", async () => {
+    // The translation is labels only. If it ever touched the value pipeline,
+    // the two languages would produce different tracking links from the same
+    // input — and nobody would notice until the campaign report did.
+    render(<UtmBuilder lang="en" />);
+    const input = screen.getByLabelText(/Source \(utm_source\)/);
+    await user().type(input, "News Letter");
+    await waitFor(() =>
+      expect(url()).toBe("https://tracht-digital.de/?utm_source=news-letter"),
+    );
+  });
+});

@@ -29,8 +29,30 @@ docblock; the manifest suite runs in node.
 
 ## Gotchas
 
+- **Every island takes an optional `lang` prop, and German is the default.**
+  The tools site publishes German at `/` and English at `/en/`; the shell
+  (`tools/*.astro`) receives `lang` from the site's tool-page template and
+  passes it to the island, which looks its labels up in a local `STRINGS`
+  table. Three things about that shape are deliberate:
+  - **`lang` defaults to `"de"` at BOTH levels.** A consumer that renders the
+    shell without the prop — which is every consumer that existed before the
+    English tree — gets exactly the behaviour it had before. That is also why
+    the whole existing German test suite is the regression test for the
+    default: an island that quietly started rendering English would fail all
+    of it.
+  - **`type Lang = "de" | "en"` is declared per island, not imported from the
+    contract.** The packs release independently, and a shared type would make
+    every language change a contract minor that all four packs then repin. Two
+    string literals are not worth that coupling.
+  - **Translate LABELS, never the value pipeline.** The utm parameter keys,
+    the slug normalisation and the entropy thresholds are identical in both
+    languages — a password does not become stronger in English, and two
+    languages producing different tracking links from the same input would
+    only surface in a campaign report weeks later. Each island has a test
+    pinning exactly that.
 - **This pack ships NO CSS — every control must carry a shared class.** The tools
-  site renders on the `panel` surface, and a surface layer only sets tokens: they
+  site renders on the `blog` surface (it was `panel` until 2026-08-17), and a
+  surface layer only sets tokens: they
   reach an element through `btn` / `chip` / `field-boxed` / `tds-card`. A
   `<button>` without `btn` therefore has no padding, no radius and no 44px touch
   target, and an `<input>` without `field-boxed` renders **invisible**, because

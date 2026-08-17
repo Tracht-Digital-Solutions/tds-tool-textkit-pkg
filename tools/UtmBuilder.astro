@@ -1,8 +1,20 @@
 ---
 // UTM-link-builder tool shell — hosts the client-side island.
+//
+// `lang` is passed down from the site's tool-page template so the island can
+// render its labels in the page's language. It defaults to German here as
+// well as in the island: a consumer that renders the shell without the prop
+// (and every consumer did until the English tree existed) gets exactly the
+// behaviour it had before.
 import UtmBuilder from "../islands/UtmBuilder.tsx";
+
+interface Props {
+  lang?: "de" | "en";
+}
+
+const { lang = "de" } = Astro.props;
 ---
 
 <div class="tool tool--utm">
-  <UtmBuilder client:load />
+  <UtmBuilder client:load lang={lang} />
 </div>

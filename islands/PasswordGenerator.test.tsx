@@ -285,3 +285,43 @@ describe("copy to clipboard", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Kopieren" })).toBeDefined());
   });
 });
+
+/**
+ * The English branch. The German assertions above render the island with no
+ * props, so they double as the regression test for the default.
+ *
+ * The strength LABEL is translated but the thresholds are not — a password
+ * does not become stronger in English. That is what the last case pins.
+ */
+describe("in English", () => {
+  it("translates the controls", () => {
+    render(<PasswordGenerator lang="en" />);
+    expect(screen.getByRole("button", { name: "Copy" })).toBeDefined();
+    expect(screen.getByLabelText(/Lowercase \(a-z\)/)).toBeDefined();
+    expect(screen.getByLabelText(/Exclude ambiguous/)).toBeDefined();
+    expect(screen.queryByLabelText(/Kleinbuchstaben/)).toBeNull();
+  });
+
+  it("says nothing is selected in English", async () => {
+    const u = userEvent.setup({ delay: null });
+    render(<PasswordGenerator lang="en" />);
+    for (const label of [/Lowercase/, /Uppercase/, /Digits/, /Symbols/]) {
+      await u.click(screen.getByLabelText(label));
+    }
+    expect(await screen.findByText("No characters selected")).toBeDefined();
+  });
+
+  it("rates the same password the same in both languages", () => {
+    const { unmount } = render(<PasswordGenerator lang="en" />);
+    // Default settings: 20 chars over the full pool — comfortably "very
+    // strong" / "Sehr stark". The bit estimate must be identical.
+    const en = screen.getByText(/~\d+ bit/).textContent ?? "";
+    unmount();
+    render(<PasswordGenerator />);
+    const de = screen.getByText(/~\d+ bit/).textContent ?? "";
+    const bits = (s: string) => s.match(/~(\d+) bit/)?.[1];
+    expect(bits(en)).toBe(bits(de));
+    expect(en).toContain("Very strong");
+    expect(de).toContain("Sehr stark");
+  });
+});

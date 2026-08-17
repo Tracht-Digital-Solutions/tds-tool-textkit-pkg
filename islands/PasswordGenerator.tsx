@@ -20,13 +20,76 @@ function randInt(max: number): number {
   return x % max;
 }
 
+/** See the note in UtmBuilder.tsx on why this is local per island. */
+type Lang = "de" | "en";
+
+interface Strings {
+  weak: string;
+  medium: string;
+  strong: string;
+  veryStrong: string;
+  copy: string;
+  copied: string;
+  regenerate: string;
+  length: string;
+  noCharsSelected: string;
+  lowercase: string;
+  uppercase: string;
+  digits: string;
+  symbols: string;
+  excludeAmbiguous: string;
+  note: string;
+}
+
+/** German is the default; every existing test here asserts German labels. */
+const STRINGS = {
+  de: {
+    weak: "Schwach",
+    medium: "Mittel",
+    strong: "Stark",
+    veryStrong: "Sehr stark",
+    copy: "Kopieren",
+    copied: "Kopiert ✓",
+    regenerate: "Neu erzeugen",
+    length: "Länge",
+    noCharsSelected: "Keine Zeichen gewählt",
+    lowercase: "Kleinbuchstaben (a-z)",
+    uppercase: "Großbuchstaben (A-Z)",
+    digits: "Ziffern (0-9)",
+    symbols: "Sonderzeichen",
+    excludeAmbiguous: "Verwechselbare Zeichen ausschließen (I l 1 O 0 o)",
+    note: "Passwörter werden lokal in Ihrem Browser mit einem kryptografisch sicheren Zufallsgenerator erzeugt und niemals übertragen.",
+  },
+  en: {
+    weak: "Weak",
+    medium: "Medium",
+    strong: "Strong",
+    veryStrong: "Very strong",
+    copy: "Copy",
+    copied: "Copied ✓",
+    regenerate: "Generate a new one",
+    length: "Length",
+    noCharsSelected: "No characters selected",
+    lowercase: "Lowercase (a-z)",
+    uppercase: "Uppercase (A-Z)",
+    digits: "Digits (0-9)",
+    symbols: "Symbols",
+    excludeAmbiguous: "Exclude ambiguous characters (I l 1 O 0 o)",
+    note: "Passwords are generated locally in your browser with a cryptographically secure random generator and are never transmitted.",
+  },
+} satisfies Record<Lang, Strings>;
+
 /** Rough strength label from entropy (bits = length * log2(poolSize)). */
-function strength(bits: number): { label: string; tone: string; pct: number } {
+function strength(bits: number, t: Strings): { label: string; tone: string; pct: number } {
   const pct = Math.max(0, Math.min(100, Math.round((bits / 128) * 100)));
-  if (bits < 40) return { label: "Schwach", tone: "var(--color-danger)", pct };
-  if (bits < 70) return { label: "Mittel", tone: "var(--color-warning)", pct };
-  if (bits < 100) return { label: "Stark", tone: "var(--color-success)", pct };
-  return { label: "Sehr stark", tone: "var(--color-success)", pct };
+  if (bits < 40) return { label: t.weak, tone: "var(--color-danger)", pct };
+  if (bits < 70) return { label: t.medium, tone: "var(--color-warning)", pct };
+  if (bits < 100) return { label: t.strong, tone: "var(--color-success)", pct };
+  return { label: t.veryStrong, tone: "var(--color-success)", pct };
+}
+
+interface Props {
+  lang?: Lang;
 }
 
 /**
@@ -34,7 +97,8 @@ function strength(bits: number): { label: string; tone: string; pct: number } {
  * configurable length + character sets, live strength estimate, copy to
  * clipboard. Everything client-side; nothing leaves the browser.
  */
-export default function PasswordGenerator() {
+export default function PasswordGenerator({ lang = "de" }: Props) {
+  const t = STRINGS[lang];
   const [length, setLength] = useState(20);
   const [lower, setLower] = useState(true);
   const [upper, setUpper] = useState(true);
@@ -72,7 +136,7 @@ export default function PasswordGenerator() {
 
   const pool = buildPool();
   const bits = pool.length > 0 ? Math.round(length * Math.log2(pool.length)) : 0;
-  const s = strength(bits);
+  const s = strength(bits, t);
 
   const copy = async () => {
     if (!password) return;
@@ -92,17 +156,17 @@ export default function PasswordGenerator() {
           {password || "—"}
         </output>
         <button type="button" className="btn btn-ghost" onClick={copy} disabled={!password}>
-          {copied ? "Kopiert ✓" : "Kopieren"}
+          {copied ? t.copied : t.copy}
         </button>
-        <button type="button" className="btn btn-primary" onClick={generate} aria-label="Neu erzeugen">
+        <button type="button" className="btn btn-primary" onClick={generate} aria-label={t.regenerate}>
           ↻
         </button>
       </div>
 
       <div>
         <div className="mb-1 flex justify-between text-sm">
-          <span className="opacity-80">Länge: {length}</span>
-          <span style={{ color: s.tone }}>{pool.length > 0 ? `${s.label} · ~${bits} bit` : "Keine Zeichen gewählt"}</span>
+          <span className="opacity-80">{t.length}: {length}</span>
+          <span style={{ color: s.tone }}>{pool.length > 0 ? `${s.label} · ~${bits} bit` : t.noCharsSelected}</span>
         </div>
         <input type="range" min={6} max={64} value={length} onChange={(e) => setLength(Number(e.target.value))} className="w-full" />
         {/* The one radius this pack still writes by hand. A 6px strength meter
@@ -118,16 +182,14 @@ export default function PasswordGenerator() {
       </div>
 
       <fieldset className="grid grid-cols-2 gap-2 text-sm">
-        <label className="flex items-center gap-2"><input type="checkbox" checked={lower} onChange={(e) => setLower(e.target.checked)} /> Kleinbuchstaben (a-z)</label>
-        <label className="flex items-center gap-2"><input type="checkbox" checked={upper} onChange={(e) => setUpper(e.target.checked)} /> Großbuchstaben (A-Z)</label>
-        <label className="flex items-center gap-2"><input type="checkbox" checked={digits} onChange={(e) => setDigits(e.target.checked)} /> Ziffern (0-9)</label>
-        <label className="flex items-center gap-2"><input type="checkbox" checked={symbols} onChange={(e) => setSymbols(e.target.checked)} /> Sonderzeichen</label>
-        <label className="col-span-2 flex items-center gap-2"><input type="checkbox" checked={noAmbiguous} onChange={(e) => setNoAmbiguous(e.target.checked)} /> Verwechselbare Zeichen ausschließen (I l 1 O 0 o)</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={lower} onChange={(e) => setLower(e.target.checked)} /> {t.lowercase}</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={upper} onChange={(e) => setUpper(e.target.checked)} /> {t.uppercase}</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={digits} onChange={(e) => setDigits(e.target.checked)} /> {t.digits}</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={symbols} onChange={(e) => setSymbols(e.target.checked)} /> {t.symbols}</label>
+        <label className="col-span-2 flex items-center gap-2"><input type="checkbox" checked={noAmbiguous} onChange={(e) => setNoAmbiguous(e.target.checked)} /> {t.excludeAmbiguous}</label>
       </fieldset>
 
-      <p className="text-xs opacity-60">
-        Passwörter werden lokal in deinem Browser mit einem kryptografisch sicheren Zufallsgenerator erzeugt und niemals übertragen.
-      </p>
+      <p className="text-xs opacity-60">{t.note}</p>
     </div>
   );
 }
