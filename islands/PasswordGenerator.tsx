@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const SETS = {
   lower: "abcdefghijklmnopqrstuvwxyz",
@@ -32,6 +32,8 @@ interface Strings {
   copied: string;
   regenerate: string;
   length: string;
+  /** Names the character-set group; a <fieldset> without one announces nothing. */
+  charsets: string;
   noCharsSelected: string;
   lowercase: string;
   uppercase: string;
@@ -52,6 +54,7 @@ const STRINGS = {
     copied: "Kopiert ✓",
     regenerate: "Neu erzeugen",
     length: "Länge",
+    charsets: "Zeichenarten",
     noCharsSelected: "Keine Zeichen gewählt",
     lowercase: "Kleinbuchstaben (a-z)",
     uppercase: "Großbuchstaben (A-Z)",
@@ -69,6 +72,7 @@ const STRINGS = {
     copied: "Copied ✓",
     regenerate: "Generate a new one",
     length: "Length",
+    charsets: "Character types",
     noCharsSelected: "No characters selected",
     lowercase: "Lowercase (a-z)",
     uppercase: "Uppercase (A-Z)",
@@ -107,6 +111,11 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
   const [noAmbiguous, setNoAmbiguous] = useState(false);
   const [password, setPassword] = useState("");
   const [copied, setCopied] = useState(false);
+  /** Pending "copied" reset, cleared on unmount. */
+  const copyReset = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (copyReset.current !== null) clearTimeout(copyReset.current);
+  }, []);
 
   const buildPool = useCallback((): string => {
     let pool = "";
@@ -143,7 +152,10 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
     try {
       await navigator.clipboard.writeText(password);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      // Tracked so unmount can clear it: an Astro island is torn down on
+      // navigation, and a pending timer then sets state on a dead component.
+      if (copyReset.current !== null) clearTimeout(copyReset.current);
+      copyReset.current = setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
     }
@@ -152,7 +164,9 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
   return (
     <div className="password-tool space-y-5">
       <div className="flex items-stretch gap-2">
-        <output className="tds-card flex-1 select-all px-4 py-3 font-mono text-lg break-all">
+        {/* aria-live: regenerating replaces the password in place, which is
+            otherwise a silent change — the one thing the user came for. */}
+        <output className="tds-card flex-1 select-all px-4 py-3 font-mono text-lg break-all" aria-live="polite">
           {password || "—"}
         </output>
         <button type="button" className="btn btn-ghost" onClick={copy} disabled={!password}>
@@ -182,6 +196,9 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
       </div>
 
       <fieldset className="grid grid-cols-2 gap-2 text-sm">
+        {/* A fieldset with no legend groups the four boxes visually and says
+            nothing to a screen reader. sr-only keeps the look unchanged. */}
+        <legend className="sr-only">{t.charsets}</legend>
         <label className="flex items-center gap-2"><input type="checkbox" checked={lower} onChange={(e) => setLower(e.target.checked)} /> {t.lowercase}</label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={upper} onChange={(e) => setUpper(e.target.checked)} /> {t.uppercase}</label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={digits} onChange={(e) => setDigits(e.target.checked)} /> {t.digits}</label>

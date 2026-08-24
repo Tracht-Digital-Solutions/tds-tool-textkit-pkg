@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /** Lowercase, spaces→hyphens, strip anything but a-z0-9-_ — a clean UTM value. */
 function slugify(value: string): string {
@@ -93,6 +93,11 @@ export default function UtmBuilder({ lang = "de" }: Props) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [autoSlug, setAutoSlug] = useState(true);
   const [copied, setCopied] = useState(false);
+  /** Pending "copied" reset, cleared on unmount. */
+  const copyReset = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (copyReset.current !== null) clearTimeout(copyReset.current);
+  }, []);
 
   const set = (key: string, v: string) => {
     setValues((prev) => ({ ...prev, [key]: v }));
@@ -125,7 +130,9 @@ export default function UtmBuilder({ lang = "de" }: Props) {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      // Tracked so unmount can clear it — see PasswordGenerator.
+      if (copyReset.current !== null) clearTimeout(copyReset.current);
+      copyReset.current = setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
     }
