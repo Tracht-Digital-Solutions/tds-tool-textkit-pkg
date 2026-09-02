@@ -167,7 +167,7 @@ export default function UtmBuilder({ lang = "de" }: Props) {
       </label>
 
       {error ? (
-        <p className="status-pill status-pill--danger text-sm">{error}</p>
+        <p className="tds-alert tds-alert--danger">{error}</p>
       ) : (
         <div className="space-y-2">
           {missing.length > 0 && (
