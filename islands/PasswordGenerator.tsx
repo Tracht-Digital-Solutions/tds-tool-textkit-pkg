@@ -167,7 +167,14 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
         {/* aria-live: regenerating replaces the password in place, which is
             otherwise a silent change — the one thing the user came for. */}
         <output className="tds-card flex-1 select-all px-4 py-3 font-mono text-lg break-all" aria-live="polite">
-          {password || "—"}
+          {/* The keyed span, not the <output>, carries the motion. `tds-appear`
+              (tds-shared, pure CSS) only fires when an element is INSERTED, and
+              the live region itself must stay mounted — a region that is
+              replaced along with its text announces nothing. So the region
+              persists and its child is re-inserted on every new password. */}
+          <span key={password} className="tds-appear block">
+            {password || "—"}
+          </span>
         </output>
         <button type="button" className="btn btn-ghost" onClick={copy} disabled={!password}>
           {copied ? t.copied : t.copy}

@@ -167,7 +167,7 @@ export default function UtmBuilder({ lang = "de" }: Props) {
       </label>
 
       {error ? (
-        <p className="tds-alert tds-alert--danger">{error}</p>
+        <p className="tds-alert tds-alert--danger tds-appear">{error}</p>
       ) : (
         <div className="space-y-2">
           {missing.length > 0 && (
@@ -175,7 +175,12 @@ export default function UtmBuilder({ lang = "de" }: Props) {
           )}
           <div className="flex items-stretch gap-2">
             <output className="tds-card flex-1 select-all px-4 py-3 font-mono text-sm break-all">
-              {url || "—"}
+              {/* Keyed child, persistent <output>: see PasswordGenerator. An
+                  <output> is a live region by default, so replacing it would
+                  cost the announcement the animation is meant to support. */}
+              <span key={url} className="tds-appear block">
+                {url || "—"}
+              </span>
             </output>
             <button type="button" className="btn btn-primary" onClick={copy} disabled={!url}>
               {copied ? t.copied : t.copy}
