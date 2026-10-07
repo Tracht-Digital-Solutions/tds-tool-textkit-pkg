@@ -20,7 +20,7 @@ npm run lint:primitives         # fails on a control without a shared class
 
 ## Hard rules
 
-- **Every push to `main` publishes a `@latest` patch** and rebuilds `tds-tools-frontend`.
+- **Every push to `main` publishes a `@latest` patch** and deploys `tds-tools-frontend` (dispatches its `release.yml`).
   Don't bump the version by hand for a patch. A docs-only commit carries `[skip ci]`.
 - The password generator uses `crypto.getRandomValues`, never `Math.random`.
 - Translate labels only. Values (UTM keys, slugs, entropy thresholds) are identical in DE and EN.
