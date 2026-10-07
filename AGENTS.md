@@ -1,102 +1,40 @@
 # AGENTS.md — tds-tool-textkit-pkg
 
-A **tool package** for the TDS tools platform (password generator + UTM builder).
-Read `tds-tools-contract-pkg`'s AGENTS.md for the platform model.
+Tool pack for the public tools platform: password generator and UTM builder.
+It builds against `@tracht-digital-solutions/tds-tools-contract` and is composed into
+`tds-tools-frontend` at build time. Both tools run fully in the browser, with no
+dependencies and no network.
 
-## Shape
+The platform rules (unique ids, package-subpath components, contract stability)
+live in `tds-tools-contract-pkg/AGENTS.md`. Read that first.
 
-- `src/index.ts` — the `ToolPackManifest` (two tools). Only file tsup compiles +
-  `tsc` type-checks.
-- `tools/*.astro` — shells the site's `/tools/[slug]` template renders.
-- `islands/*.tsx` — hydrated React islands, fully client-side (no deps, no network).
+## Commands
 
-## Tests
+```bash
+npm install --no-package-lock   # never npm ci; CI has no lockfile
+npm run build                   # tsup, compiles src/index.ts only
+npm run type-check              # tsc, covers src/** only
+npm run test:run                # vitest
+npm run lint:primitives         # fails on a control without a shared class
+```
 
-`npm run test:run` (vitest). Islands opt into jsdom via a `@vitest-environment`
-docblock; the manifest suite runs in node.
+## Hard rules
 
-- **Control the RNG when asserting pool contents.** The look-alike-exclusion
-  test stubs `crypto.getRandomValues` to walk the pool sequentially so every
-  pool character appears. With a random 64-char sample the assertion passes by
-  luck ~1% of the time even with the filter removed — verified: the sampling
-  version did NOT catch that mutation, the deterministic one does.
-- `uses crypto.getRandomValues, not Math.random` is a security regression
-  guard, not a style check. Keep it.
-- The UTM `utm_term` exemption from slugify is deliberate (a keyword is a
-  search phrase, not a slug) and is pinned by a test.
-- Range inputs ignore typing: set `value` through the native setter and
-  dispatch `input`, or React swallows the change.
+- **Every push to `main` publishes a `@latest` patch** and rebuilds `tds-tools-frontend`.
+  Don't bump the version by hand for a patch. A docs-only commit carries `[skip ci]`.
+- The password generator uses `crypto.getRandomValues`, never `Math.random`.
+- Translate labels only. Values (UTM keys, slugs, entropy thresholds) are identical in DE and EN.
+- Ship no CSS. Every control carries a shared `tds-shared` class.
+- `component` in the manifest is a package subpath resolved via `exports`, never a relative path.
+- Tool `id` and `slug` stay unique across all composed packs.
+- Stay inside the `0.2.x` line. The site pins `^0.2.0`, so a minor bump needs a coordinated repin.
 
-## Gotchas
+## Topic files
 
-- **Every island takes an optional `lang` prop, and German is the default.**
-  The tools site publishes German at `/` and English at `/en/`; the shell
-  (`tools/*.astro`) receives `lang` from the site's tool-page template and
-  passes it to the island, which looks its labels up in a local `STRINGS`
-  table. Three things about that shape are deliberate:
-  - **`lang` defaults to `"de"` at BOTH levels.** A consumer that renders the
-    shell without the prop — which is every consumer that existed before the
-    English tree — gets exactly the behaviour it had before. That is also why
-    the whole existing German test suite is the regression test for the
-    default: an island that quietly started rendering English would fail all
-    of it.
-  - **`type Lang = "de" | "en"` is declared per island, not imported from the
-    contract.** The packs release independently, and a shared type would make
-    every language change a contract minor that all four packs then repin. Two
-    string literals are not worth that coupling.
-  - **Translate LABELS, never the value pipeline.** The utm parameter keys,
-    the slug normalisation and the entropy thresholds are identical in both
-    languages — a password does not become stronger in English, and two
-    languages producing different tracking links from the same input would
-    only surface in a campaign report weeks later. Each island has a test
-    pinning exactly that.
-- **This pack ships NO CSS — every control must carry a shared class.** The tools
-  site renders on the `blog` surface (it was `panel` until 2026-08-17), and a
-  surface layer only sets tokens: they
-  reach an element through `btn` / `chip` / `field-boxed` / `tds-card`. A
-  `<button>` without `btn` therefore has no padding, no radius and no 44px touch
-  target, and an `<input>` without `field-boxed` renders **invisible**, because
-  Tailwind preflight zeroes borders.
-  Until 2026-08-16 every button in this pack was bare and the markup wrote its own
-  radii — `rounded-full` tabs (the *marketing* pill) and `rounded-lg` inputs, long
-  after the site had moved to the panel. That is why the tools rounded differently
-  from the panels. `npm run lint:primitives` runs in CI and fails on a bare
-  control; the script is a byte-identical copy of the seed in `tds-ext-template-pkg`.
-- **`status-pill` ist ein Etikett, keine Blockmeldung.** Die Plakette hat
-  `white-space: nowrap` und Versalien und ist für ein Wort gedacht. Eine
-  Fehlermeldung darin bricht nicht um, sondern macht das Dokument breiter als
-  das Fenster: im JSON-Formatter waren es 460px bei 390px Fenster, weil die
-  Meldung den Text des Browsers trägt und damit beliebig lang ist. Zu sehen
-  ist davon nichts — `body { overflow-x: hidden }` schneidet den Überhang ab,
-  man findet es nur, indem man `document.documentElement.scrollWidth` misst.
-  Für eine Meldung über mehrere Zeilen ist `tds-alert` (`--success` /
-  `--warning` / `--danger`) die richtige Klasse; tds-shared sagt das im
-  Kommentar über `.status-pill` auch selbst. Ein `<span>` als kurzes Etikett
-  neben etwas anderem bleibt eine Plakette.
-- **Never hand-author a radius, and do not reach for `rounded-[var(--tds-radius-*)]`
-  either.** Tailwind does not generate arbitrary values out of a package inside
-  `node_modules`, so from here that ships as no rule at all. Use the shared class.
-- **Attribute order no longer matters, and neither does what you name a class
-  constant** (fixed 2026-08-16). `lint-primitives` used to match a tag with
-  `[^>]*>`, which stops at the first `>` — and an arrow handler
-  (`onClick={() => …}`) supplies one, so a correctly classed control written after
-  its handler was reported as bare. It also read `className={x}` as the literal
-  text `x`, so `{field}` passed and `{area}` did not. The script now walks the tag
-  tracking quotes and brace depth, and resolves a local `const` to its string.
-  Both workarounds are gone; all 20 repos carry the identical fixed script.
-- **`islands/` is NOT type-checked here** (`tsconfig` covers `src/**/*` only). The
-  islands are compiled by the tds-tools-frontend build — that build is the real
-  gate for a markup change, not `npm run type-check`.
+| File | Read before |
+|---|---|
+| [docs/agents/architecture.md](docs/agents/architecture.md) | Changing the manifest, layout or the DE/EN handling |
+| [docs/agents/conventions.md](docs/agents/conventions.md) | Touching any markup or styling in `islands/` or `tools/` |
+| [docs/agents/testing.md](docs/agents/testing.md) | Writing or changing tests |
 
-- `component` = package subpath via `exports`, never relative.
-- Tool `id` + `slug` globally unique across composed packs.
-- Password generator MUST use `crypto.getRandomValues`, never `Math.random`.
-- Islands/.astro compile at the site build (not in tsconfig `include`).
-- Version stays in the `0.1.x` line (site pins `^0.1.x`).
-- **`tds-appear` belongs to `tds-shared`, not to this pack.** The class fades a
-  result into place the moment it is INSERTED — no script, no runtime, which is
-  the only kind of motion a public tool may carry. Two consequences: the CSS
-  arrives with the site's `tds-shared` (>=0.38.8), so the class does nothing in
-  a site pinned lower; and an element that merely changes its text does not
-  re-animate, so a permanent output box needs a `key` on the value to be
-  re-inserted.
+Workspace rules: `../CLAUDE.md`. Cross-repo state: `../MIGRATION-STATUS.md`.
