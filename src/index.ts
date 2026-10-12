@@ -30,12 +30,12 @@ export default defineToolPack({
       description:
         "UTM-Links für Kampagnen erstellen: utm_source, utm_medium und utm_campaign für Google Analytics & Co. setzen, mit Slug-Vorschau und Kopierfunktion.",
       icon: "link",
-      keywords: ["utm generator", "utm builder", "utm link erstellen", "utm parameter", "kampagne", "tracking", "analytics"],
+      keywords: ["utm generator", "utm builder", "utm link erstellen", "tracking link erstellen", "utm parameter", "kampagne", "tracking", "analytics"],
       component: "@tracht-digital-solutions/tds-tool-textkit/tools/UtmBuilder.astro",
       seo: {
-        title: "UTM-Generator – UTM-Links kostenlos erstellen",
+        title: "UTM-Generator – Tracking-Links kostenlos erstellen",
         description:
-          "UTM-Generator für Kampagnen-Links: utm_source, utm_medium und utm_campaign sauber setzen und kopieren, für Google Analytics. Kostenlos im Browser.",
+          "UTM-Generator für Tracking-Links: utm_source, utm_medium und utm_campaign setzen und den fertigen UTM-Link kopieren, für Google Analytics. Kostenlos im Browser.",
       },
     }),
   ],
