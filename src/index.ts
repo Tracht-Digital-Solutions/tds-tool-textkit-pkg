@@ -25,22 +25,22 @@ export default defineToolPack({
     defineTool({
       id: "utm-builder",
       slug: "utm-link-generator",
-      name: "UTM-Link-Generator",
+      name: "UTM-Generator",
       category: "marketing",
       description:
-        "Baue nachverfolgbare Kampagnen-Links mit UTM-Parametern für Google Analytics & Co. — inklusive Slug-Vorschau und Kopierfunktion.",
+        "UTM-Links für Kampagnen erstellen: utm_source, utm_medium und utm_campaign für Google Analytics & Co. setzen, mit Slug-Vorschau und Kopierfunktion.",
       icon: "link",
-      keywords: ["utm", "kampagne", "tracking", "analytics", "link", "slug"],
+      keywords: ["utm generator", "utm builder", "utm link erstellen", "utm parameter", "kampagne", "tracking", "analytics"],
       component: "@tracht-digital-solutions/tds-tool-textkit/tools/UtmBuilder.astro",
       seo: {
-        title: "UTM-Link-Generator — Kampagnen-Links mit Tracking",
+        title: "UTM-Generator – UTM-Links kostenlos erstellen",
         description:
-          "Kostenloser UTM-Builder: erstelle nachverfolgbare Marketing-Links mit utm_source, utm_medium und utm_campaign. Direkt im Browser.",
+          "UTM-Generator für Kampagnen-Links: utm_source, utm_medium und utm_campaign sauber setzen und kopieren, für Google Analytics. Kostenlos im Browser.",
       },
     }),
   ],
   i18n: {
-    de: { "text.password": "Passwort-Generator", "text.utm": "UTM-Link-Generator" },
+    de: { "text.password": "Passwort-Generator", "text.utm": "UTM-Generator" },
     en: { "text.password": "Password Generator", "text.utm": "UTM Link Builder" },
   },
 });
