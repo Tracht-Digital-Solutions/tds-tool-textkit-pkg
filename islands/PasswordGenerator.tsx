@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useCopyFlag } from "@tracht-digital-solutions/tds-shared/clipboard";
 
 const SETS = {
   lower: "abcdefghijklmnopqrstuvwxyz",
@@ -110,12 +111,7 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
   const [symbols, setSymbols] = useState(true);
   const [noAmbiguous, setNoAmbiguous] = useState(false);
   const [password, setPassword] = useState("");
-  const [copied, setCopied] = useState(false);
-  /** Pending "copied" reset, cleared on unmount. */
-  const copyReset = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => {
-    if (copyReset.current !== null) clearTimeout(copyReset.current);
-  }, []);
+  const { copied, copy: copyFlag, reset: resetCopied } = useCopyFlag();
 
   const buildPool = useCallback((): string => {
     let pool = "";
@@ -136,7 +132,7 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
     let out = "";
     for (let i = 0; i < length; i++) out += pool[randInt(pool.length)];
     setPassword(out);
-    setCopied(false);
+    resetCopied();
   }, [buildPool, length]);
 
   useEffect(() => {
@@ -147,19 +143,7 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
   const bits = pool.length > 0 ? Math.round(length * Math.log2(pool.length)) : 0;
   const s = strength(bits, t);
 
-  const copy = async () => {
-    if (!password) return;
-    try {
-      await navigator.clipboard.writeText(password);
-      setCopied(true);
-      // Tracked so unmount can clear it: an Astro island is torn down on
-      // navigation, and a pending timer then sets state on a dead component.
-      if (copyReset.current !== null) clearTimeout(copyReset.current);
-      copyReset.current = setTimeout(() => setCopied(false), 1500);
-    } catch {
-      setCopied(false);
-    }
-  };
+  const copy = () => void copyFlag(password);
 
   return (
     <div className="password-tool space-y-5">

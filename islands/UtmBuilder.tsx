@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+import { Alert } from "@tracht-digital-solutions/tds-shared/alert";
+import { useCopyFlag } from "@tracht-digital-solutions/tds-shared/clipboard";
 
 /** Lowercase, spaces→hyphens, strip anything but a-z0-9-_ — a clean UTM value. */
 function slugify(value: string): string {
@@ -92,16 +94,11 @@ export default function UtmBuilder({ lang = "de" }: Props) {
   const [base, setBase] = useState("https://tracht-digital.de");
   const [values, setValues] = useState<Record<string, string>>({});
   const [autoSlug, setAutoSlug] = useState(true);
-  const [copied, setCopied] = useState(false);
-  /** Pending "copied" reset, cleared on unmount. */
-  const copyReset = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => {
-    if (copyReset.current !== null) clearTimeout(copyReset.current);
-  }, []);
+  const { copied, copy: copyFlag, reset: resetCopied } = useCopyFlag();
 
   const set = (key: string, v: string) => {
     setValues((prev) => ({ ...prev, [key]: v }));
-    setCopied(false);
+    resetCopied();
   };
 
   const { url, error } = useMemo(() => {
@@ -125,18 +122,7 @@ export default function UtmBuilder({ lang = "de" }: Props) {
 
   const missing = PARAMS.filter((p) => p.required && !values[p.key]).map((p) => p.label.split(" (")[0]);
 
-  const copy = async () => {
-    if (!url) return;
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      // Tracked so unmount can clear it — see PasswordGenerator.
-      if (copyReset.current !== null) clearTimeout(copyReset.current);
-      copyReset.current = setTimeout(() => setCopied(false), 1500);
-    } catch {
-      setCopied(false);
-    }
-  };
+  const copy = () => void copyFlag(url);
 
   // Geometry/border/padding come from the shared primitive — the pack ships no
   // CSS and the radius must follow whatever surface composes it.
@@ -146,7 +132,7 @@ export default function UtmBuilder({ lang = "de" }: Props) {
     <div className="utm-tool space-y-5">
       <label className="block text-sm">
         <span className="mb-1 block opacity-80">{t.targetUrl}</span>
-        <input className={field} value={base} onChange={(e) => { setBase(e.target.value); setCopied(false); }} placeholder="https://…" />
+        <input className={field} value={base} onChange={(e) => { setBase(e.target.value); resetCopied(); }} placeholder="https://…" />
       </label>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -167,7 +153,7 @@ export default function UtmBuilder({ lang = "de" }: Props) {
       </label>
 
       {error ? (
-        <p className="tds-alert tds-alert--danger tds-appear">{error}</p>
+        <Alert>{error}</Alert>
       ) : (
         <div className="space-y-2">
           {missing.length > 0 && (
