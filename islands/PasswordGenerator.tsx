@@ -62,7 +62,7 @@ const STRINGS = {
     digits: "Ziffern (0-9)",
     symbols: "Sonderzeichen",
     excludeAmbiguous: "Verwechselbare Zeichen ausschließen (I l 1 O 0 o)",
-    note: "Passwörter werden lokal in Ihrem Browser mit einem kryptografisch sicheren Zufallsgenerator erzeugt und niemals übertragen.",
+    note: "Passwörter werden lokal im Browser mit einem kryptografisch sicheren Zufallsgenerator erzeugt und niemals übertragen.",
   },
   en: {
     weak: "Weak",

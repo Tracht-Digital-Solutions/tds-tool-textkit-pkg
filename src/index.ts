@@ -12,7 +12,7 @@ export default defineToolPack({
       name: "Passwort-Generator",
       category: "security",
       description:
-        "Erzeuge sichere, zufällige Passwörter mit einstellbarer Länge und Zeichenauswahl — lokal im Browser, nichts verlässt dein Gerät.",
+        "Sichere, zufällige Passwörter mit einstellbarer Länge und Zeichenauswahl — lokal im Browser, nichts verlässt das Gerät.",
       icon: "key",
       keywords: ["passwort", "password", "generator", "sicherheit", "zufällig"],
       component: "@tracht-digital-solutions/tds-tool-textkit/tools/PasswordGenerator.astro",
