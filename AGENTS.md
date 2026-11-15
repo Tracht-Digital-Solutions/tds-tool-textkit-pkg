@@ -28,6 +28,7 @@ npm run lint:primitives         # fails on a control without a shared class
 - `component` in the manifest is a package subpath resolved via `exports`, never a relative path.
 - Tool `id` and `slug` stay unique across all composed packs.
 - Stay inside the `0.2.x` line. The site pins `^0.2.0`, so a minor bump needs a coordinated repin.
+- Follows the TDS quality standard (`../tds-ops/standards/quality.md`): no AI slop, clean code.
 
 ## Topic files
 

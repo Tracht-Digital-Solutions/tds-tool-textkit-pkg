@@ -160,7 +160,7 @@ export default function PasswordGenerator({ lang = "de" }: Props) {
             {password || "—"}
           </span>
         </output>
-        <button type="button" className="btn btn-ghost" onClick={copy} disabled={!password}>
+        <button type="button" className="btn btn-ghost" onClick={copy} disabled={!password} data-copied={copied ? "" : undefined}>
           {copied ? t.copied : t.copy}
         </button>
         <button type="button" className="btn btn-primary" onClick={generate} aria-label={t.regenerate}>

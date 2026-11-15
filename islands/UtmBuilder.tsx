@@ -168,7 +168,7 @@ export default function UtmBuilder({ lang = "de" }: Props) {
                 {url || "—"}
               </span>
             </output>
-            <button type="button" className="btn btn-primary" onClick={copy} disabled={!url}>
+            <button type="button" className="btn btn-primary" onClick={copy} disabled={!url} data-copied={copied ? "" : undefined}>
               {copied ? t.copied : t.copy}
             </button>
           </div>

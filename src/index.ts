@@ -12,12 +12,12 @@ export default defineToolPack({
       name: "Passwort-Generator",
       category: "security",
       description:
-        "Sichere, zufällige Passwörter mit einstellbarer Länge und Zeichenauswahl — lokal im Browser, nichts verlässt das Gerät.",
+        "Sichere, zufällige Passwörter mit einstellbarer Länge und Zeichenauswahl, lokal im Browser, nichts verlässt das Gerät.",
       icon: "key",
       keywords: ["passwort", "password", "generator", "sicherheit", "zufällig"],
       component: "@tracht-digital-solutions/tds-tool-textkit/tools/PasswordGenerator.astro",
       seo: {
-        title: "Passwort-Generator — sichere Passwörter erstellen",
+        title: "Passwort-Generator, sichere Passwörter erstellen",
         description:
           "Kostenloser Passwort-Generator: sichere Zufallspasswörter mit einstellbarer Länge und Zeichenauswahl. Läuft komplett lokal im Browser.",
       },
@@ -33,7 +33,7 @@ export default defineToolPack({
       keywords: ["utm generator", "utm builder", "utm link erstellen", "tracking link erstellen", "utm parameter", "kampagne", "tracking", "analytics"],
       component: "@tracht-digital-solutions/tds-tool-textkit/tools/UtmBuilder.astro",
       seo: {
-        title: "UTM-Generator – Tracking-Links kostenlos erstellen",
+        title: "UTM-Generator: Tracking-Links kostenlos erstellen",
         description:
           "UTM-Generator für Tracking-Links: utm_source, utm_medium und utm_campaign setzen und den fertigen UTM-Link kopieren, für Google Analytics. Kostenlos im Browser.",
       },
