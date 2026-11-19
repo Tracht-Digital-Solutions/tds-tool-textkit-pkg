@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useCopyFlag } from "@tracht-digital-solutions/tds-shared/clipboard";
+import { useCopyFlag } from "@tracht-digital-labs/tds-shared/clipboard";
 
 const SETS = {
   lower: "abcdefghijklmnopqrstuvwxyz",

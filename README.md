@@ -1,4 +1,4 @@
-# @tracht-digital-solutions/tds-tool-textkit
+# @tracht-digital-labs/tds-tool-textkit
 
 Text & link utilities for the **TDS tools platform** (`tds-tools-frontend`). Fully
 client-side — nothing leaves the browser.

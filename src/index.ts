@@ -1,4 +1,4 @@
-import { defineToolPack, defineTool } from "@tracht-digital-solutions/tds-tools-contract";
+import { defineToolPack, defineTool } from "@tracht-digital-labs/tds-tools-contract";
 
 /** Text & link utilities: a secure password generator + a UTM link builder. */
 export default defineToolPack({
@@ -15,7 +15,7 @@ export default defineToolPack({
         "Sichere, zufällige Passwörter mit einstellbarer Länge und Zeichenauswahl, lokal im Browser, nichts verlässt das Gerät.",
       icon: "key",
       keywords: ["passwort", "password", "generator", "sicherheit", "zufällig"],
-      component: "@tracht-digital-solutions/tds-tool-textkit/tools/PasswordGenerator.astro",
+      component: "@tracht-digital-labs/tds-tool-textkit/tools/PasswordGenerator.astro",
       seo: {
         title: "Passwort-Generator, sichere Passwörter erstellen",
         description:
@@ -31,7 +31,7 @@ export default defineToolPack({
         "UTM-Links für Kampagnen erstellen: utm_source, utm_medium und utm_campaign für Google Analytics & Co. setzen, mit Slug-Vorschau und Kopierfunktion.",
       icon: "link",
       keywords: ["utm generator", "utm builder", "utm link erstellen", "tracking link erstellen", "utm parameter", "kampagne", "tracking", "analytics"],
-      component: "@tracht-digital-solutions/tds-tool-textkit/tools/UtmBuilder.astro",
+      component: "@tracht-digital-labs/tds-tool-textkit/tools/UtmBuilder.astro",
       seo: {
         title: "UTM-Generator: Tracking-Links kostenlos erstellen",
         description:

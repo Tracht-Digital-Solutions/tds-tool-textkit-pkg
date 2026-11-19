@@ -1,7 +1,7 @@
 # AGENTS.md — tds-tool-textkit-pkg
 
 Tool pack for the public tools platform: password generator and UTM builder.
-It builds against `@tracht-digital-solutions/tds-tools-contract` and is composed into
+It builds against `@tracht-digital-labs/tds-tools-contract` and is composed into
 `tds-tools-frontend` at build time. Both tools run fully in the browser, with no
 dependencies and no network.
 
